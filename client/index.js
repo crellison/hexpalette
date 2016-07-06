@@ -73,7 +73,6 @@ var ColorTimePage = React.createClass({
     };
   },
   handleResize: function(e) {
-  	console.log('noticed')
     this.setState({
     	windowX: window.innerWidth,
     	windowY: window.innerHeight
@@ -85,15 +84,12 @@ var ColorTimePage = React.createClass({
 	click: function() {
 		var HL = getHL()
 		this.setState({'chroma':smoothParse(HL[0],HL[1])})
-		// console.log('current: ',this.state.chroma)
 	},
 	random: function() {
 		this.setState({'chroma':[Math.floor(Math.random()*255),Math.floor(Math.random()*255),Math.floor(Math.random()*255)]})
 	},
 	save: function() {
-		console.log('saved')
-		// this.setState({'palette': {$push : newElt}})
-		// this.setState({'palette': this.state.palette.concat([newElt])})
+		console.log('saved') // not completed
 	},
 	componentDidMount: function() {
 		window.addEventListener('resize', this.handleResize) 
