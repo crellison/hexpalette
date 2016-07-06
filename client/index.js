@@ -4,14 +4,18 @@ var _=require('underscore');
 
 // HELPER FUNCTIONS
 function parseTime() {
-	// too simple
+	// too simple, renders choppy
 	return '#'+(Date.now().toString(16).toUpperCase().slice(-7,-1))
 }
-
-function smoothParse() {
+function getHL() {
 	var now = Date.now()
 	var H = Math.floor((now/10)%1000)/1000
 	var L = Math.floor((now/1000)%100)/100
+	return [H,L]
+}
+function smoothParse(hue,lit) {
+	var H = hue
+	var L = lit
 	var S = 1
 	// console.log('H: ',H)
 	// console.log('L: ',L)
@@ -52,8 +56,8 @@ var InitailPage = React.createClass({
 	render: function() {
 		return <div id="canvas" className="initial">
 			<a className="secondary button index" onClick={this.color}>time</a>
-			<a className="secondary button index">select</a>
-			<a className="secondary button index">random</a>
+			<a className="secondary button index" onClick={this.color}>select</a>
+			<a className="secondary button index" onClick={this.color}>random</a>
 			<a className="secondary button index">palette</a>
 		</div>
 	}
@@ -62,27 +66,70 @@ var InitailPage = React.createClass({
 var ColorTimePage = React.createClass({
 	getInitialState: function() {
     return {
-    	'chroma': parseTime(),
-    	'palette': []
+    	'chroma': [0,0,0],
+    	'palette': [],
+    	'windowX': window.innerWidth,
+    	'windowY': window.innerHeight,
     };
   },
+  handleResize: function(e) {
+  	console.log('noticed')
+    this.setState({
+    	windowX: window.innerWidth,
+    	windowY: window.innerHeight
+    });
+  },
+  handleMouse: function(e) {
+  	this.setState({'chroma':smoothParse(e.clientX/this.state.windowX, e.clientY/this.state.windowY)})
+  },
 	click: function() {
-		this.setState({'chroma':smoothParse()})
+		var HL = getHL()
+		this.setState({'chroma':smoothParse(HL[0],HL[1])})
 		// console.log('current: ',this.state.chroma)
 	},
-	componentDidMount: function() {
-		console.log('called')
-		setInterval(this.click,10)
+	random: function() {
+		this.setState({'chroma':[Math.floor(Math.random()*255),Math.floor(Math.random()*255),Math.floor(Math.random()*255)]})
 	},
+	save: function() {
+		console.log('saved')
+		// this.setState({'palette': {$push : newElt}})
+		// this.setState({'palette': this.state.palette.concat([newElt])})
+	},
+	componentDidMount: function() {
+		window.addEventListener('resize', this.handleResize) 
+		if (this.props.page === 'select') {
+			console.log('attaching mouse....')
+			window.addEventListener('onClick', this.handleMouse)
+		}
+		if (this.props.page === 'time')
+			setInterval(this.click,10)
+	},
+	componentWillUnmount: function() {
+    window.removeEventListener('resize', this.handleResize);
+    window.removeEventListener('onClick', this.handleMouse);
+  },
 	render: function() {
-		if (this.props.page ==='time') {
 			var h1c = '#ffffff'
 			if (lightEnuf(this.state.chroma)) 
 				h1c = '#2e2e2e'
+
+		if (this.props.page ==='time') {
 			return <div id="canvas" onClick={this.click} 
 				style={{'backgroundColor':toRGB(this.state.chroma)}}>
 				<h1 id="color" style={{'color':h1c}}>{toRGB(this.state.chroma)}</h1>
 			</div>;
+
+		} else if (this.props.page ==='random') {
+			return <div id="canvas" onClick={this.random} 
+				style={{'backgroundColor':toRGB(this.state.chroma)}}>
+				<h1 id="color" style={{'color':h1c}}>{toRGB(this.state.chroma)}</h1>
+			</div>;
+
+		} else if (this.props.page === 'select') {
+			return <div id="canvas" onClick={this.save} onMouseMove={this.handleMouse}
+				style={{'backgroundColor':toRGB(this.state.chroma)}}>
+				<h1 id="color" style={{'color':h1c}}>{toRGB(this.state.chroma)}</h1>
+			</div>;			
 		}
 	}
 });
