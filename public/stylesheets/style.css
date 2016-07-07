@@ -1,6 +1,7 @@
-body, h1 {
-	font-family: 'Helvetica Neue', Helvetica;
-	font-weight: lighter;
+body, h1, h4, input {
+	font-family: 'Cabin', 'Helvetica Neue', Helvetica;
+	font-weight: normal;
+	color: #2e2e2e;
 }
 header {
 	position: fixed;
@@ -13,6 +14,12 @@ header {
 	z-index: 1;
 	height: 50px;
 }
+/* placeholder color */
+::-webkit-input-placeholder {
+	color: #7d7d7d !important;
+}
+
+/* STANDARD CANVAS BACKGROUND */
 #canvas {
 	width: 100vw;
 	height: 100vh;
@@ -25,15 +32,79 @@ header {
 }
 #color {
 	color: #fff;
+	margin-bottom: 3px;
+	font-weight: lighter;
 }
 #canvas > div {
 	display: flex;
 	align-items: center;
 }
-i.fi-plus {
-	padding-right: 10px;
-	font-size: 36px;
+#title > i.fi-plus {
+	padding-right: 5px;
+	font-size: 24px;
 }
+@media (min-width: 640px) {
+	#title > i.fi-plus {
+		padding-right: 10px;
+		font-size: 36px;
+	}
+	#color {
+		margin-bottom: 10px;
+	}
+}
+
+/* PALETTE PAGE */
+#palette {
+	width: 100vw;
+	height: 100vh;
+	position: fixed;
+	top: 0;
+	left: 0;
+	display: flex;
+  flex-wrap: wrap;
+  padding: 50px 10px 0 20px;
+}
+#swatch {
+	width: 50px;
+  height: 50px;
+  margin: 0 10px 10px 0;
+}
+#current-color, #add-color {
+	position: fixed;
+  padding: 5px;
+	background-color: transparent;
+
+}
+#add-color {
+  right: 20px;
+  margin-bottom: 20px;
+  bottom: 30px;
+}
+#add-color > input {
+	font-size: 14px;
+  border-width: 0 0 1px 0;
+  border-color: #2e2e2e;
+  text-align: right;
+  outline: none;
+	background-color: transparent;	
+}
+#add-color > i.fi-plus {
+	margin-right: 10px;
+	transform: scale(1) rotate(0deg);
+  transition: all .7s ease;
+	-webkit-transform: scale(1) rotate(0deg);
+  -webkit-transition: all .7s ease;
+}
+#add-color > i.fi-plus:hover {
+  transform: scale(1.5) rotate(180deg);
+  -webkit-transform: scale(1.5) rotate(180deg);
+}
+#current-color {
+  right: 20px;
+  bottom: 0px;
+}
+
+/* INDEX PAGE GRADIENT ANIMATION */
 .initial {
     background: linear-gradient(92deg, #2e97d3, #9b56b7, #e87f04, #1dce6c);
     background-size: 800% 800%;

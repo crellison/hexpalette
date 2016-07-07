@@ -46,6 +46,12 @@ function toRGB(array) {
 function lightEnuf(array) {
 	return 360<_.reduce(array, function(memo, num) {return (num + memo)}, 0)
 }
+function pareseColorString(color) {
+	var HEX = /^#([0-9a-f]{3}){1,2}$/i
+	var RGB = /^rgb\((\d{1,3}),(\s)?(\d{1,3}),(\s)?(\d{1,3})\)$/i
+	if (HEX.test(color.replace(/ /g,'')) || RGB.test(color.replace(/ /g,''))) return color
+	return ''
+}
 
 // INITIAL PAGE
 var InitialPage = React.createClass({
@@ -55,17 +61,23 @@ var InitialPage = React.createClass({
 			'palette': [],
 		}
 	},
+	home: function() {
+		this.setState({'page' : 'home'})
+	},
 	color: function(arg) {
 		this.setState({'page' : arg.target.text})
 	},
 	save: function(e) {
 		console.log('save called')
-		console.log(e.target.parentElement.lastChild.innerHTML)
-		this.setState({'palette': this.state.palette.concat([e.target.parentElement.lastChild.innerHTML])}) // not completed
+		var color = e.target.parentElement.lastChild.innerHTML || e.target.parentElement.lastChild.value
+		e.target.parentElement.lastChild.value = ''
+		console.log(color)
+		color = pareseColorString(color)
+		if (color) this.setState({'palette': this.state.palette.concat([color])}) // not completed
 		console.log(this.state.palette)
 	},
 	render: function() {
-		console.log(this.state.palette)
+		console.log("currently on: ", this.state.page)
 		if (this.state.page === 'home')
 			return <div id="canvas" className="initial">
 				<a className="secondary button index" onClick={this.color}>time</a>
@@ -74,7 +86,7 @@ var InitialPage = React.createClass({
 				<a className="secondary button index" onClick={this.color}>palette</a>
 			</div>
 		else
-			return <ColorPage page={this.state.page} saveColor={this.save} palette={this.state.palette}/>
+			return <ColorPage page={this.state.page} saveColor={this.save} palette={this.state.palette} home={this.home}/>
 	}
 })
 
@@ -89,7 +101,8 @@ var ColorPage = React.createClass({
     	'pauseStart': 0,
     	'pauseTime': 0,
     	'showAdd': false,
-    	'home': false,
+    	'interval': false,
+    	'current': 'rbg(226, 226, 226)'
     };
   },
   handleResize: function(e) {
@@ -114,7 +127,7 @@ var ColorPage = React.createClass({
 		this.setState({
 			'paused': !this.state.paused,
 			'pauseStart': Date.now(),
-			'showAdd' : !this.state.showAdd,
+			'showAdd': !this.state.showAdd,
 		})
 	},
 	random: function() {
@@ -122,31 +135,31 @@ var ColorPage = React.createClass({
 	},
 	home: function() {
 		this.componentWillUnmount()
-		this.setState({'home' : true})
+		this.setState({'interval':clearInterval(this.state.interval)})
+		this.props.home()
 	},
 	componentDidMount: function() {
+		// add event listeners
 		window.addEventListener('resize', this.handleResize) 
-		if (this.props.page === 'select') {
-			console.log('attaching mouse....')
-			window.addEventListener('onClick', this.handleMouse)
+		if (this.props.page === 'time') {
+			console.log('triggering color change')
+			this.setState({'interval' : setInterval(this.click,10)})
 		}
-		if (this.props.page === 'time')
-			setInterval(this.click,10)
 	},
 	componentWillUnmount: function() {
     window.removeEventListener('resize', this.handleResize);
-    window.removeEventListener('click', this.handleMouse);
+    window.removeEventListener('onMouseMove', this.handleMouse);
+    window.removeEventListener('onClick', this.grabColor);
+  },
+  grabColor: function(e) {
+  	this.setState({'current' : e.target.style.backgroundColor})
   },
 	render: function() {
-		console.log(this.props.saveColor)
-
-		if (this.state.home === true) return <InitialPage/>
-
 		var h1c = '#ffffff'
 		if (lightEnuf(this.state.chroma)) 
 			h1c = '#2e2e2e'
 
-		var title = <div>
+		var title = <div id="title">
 			<i className="fi-plus" onClick={this.props.saveColor} style={{'color':h1c,'display': (this.state.showAdd ? 'block' : 'none')}}/>
 			<h1 id="color" style={{'color':h1c}}>{toRGB(this.state.chroma)}</h1>
 		</div>
@@ -180,12 +193,16 @@ var ColorPage = React.createClass({
 
 		} else if (this.props.page === 'palette') {
 			console.log(this.props.palette) // NEED TO FINISH AND ADD COOKIES
-			return <div> {header}
-				<div id="palette">
-				{this.props.palette.map(function(e) {
-					return<div id="swatch" style={{'color':e}}/>
-				})}
+			return <div id='palette' style={{'backgroundColor': '#e2e2e2'}}> 
+				{header}
+				{this.props.palette.map(function(e,i) {
+					return <div key={e+i} id="swatch" style={{'backgroundColor':e}} onClick={this.grabColor}/>
+				},this)}
+				<div id="add-color">
+					<i className="fi-plus" onClick={this.props.saveColor}/>
+					<input placeholder="add a color"/>
 				</div>
+				<h4 id="current-color">{this.state.current}</h4>
 			</div>
 		}
 	}
