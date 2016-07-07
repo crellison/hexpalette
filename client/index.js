@@ -7,8 +7,7 @@ function parseTime() {
 	// too simple, renders choppy
 	return '#'+(Date.now().toString(16).toUpperCase().slice(-7,-1))
 }
-function getHL() {
-	var now = Date.now()
+function getHL(now) {
 	var H = Math.floor((now/10)%1000)/1000
 	var L = Math.floor((now/1000)%100)/100
 	return [H,L]
@@ -70,26 +69,46 @@ var ColorTimePage = React.createClass({
     	'palette': [],
     	'windowX': window.innerWidth,
     	'windowY': window.innerHeight,
+    	'paused': false,
+    	'pauseStart': 0,
+    	'pauseTime': 0,
+    	'showAdd': false
     };
   },
   handleResize: function(e) {
     this.setState({
     	windowX: window.innerWidth,
-    	windowY: window.innerHeight
+    	windowY: window.innerHeight,
     });
   },
   handleMouse: function(e) {
+  	if (!this.state.paused)
   	this.setState({'chroma':smoothParse(e.clientX/this.state.windowX, e.clientY/this.state.windowY)})
   },
 	click: function() {
-		var HL = getHL()
-		this.setState({'chroma':smoothParse(HL[0],HL[1])})
+		if (this.state.paused) {
+			this.setState({'pauseTime' : Date.now()-this.state.pauseStart})
+		} else {
+			var HL = getHL(Date.now()-this.state.pauseTime)
+			this.setState({'chroma':smoothParse(HL[0],HL[1])})
+		}
+	},
+	pause: function() {
+		this.setState({
+			'paused': !this.state.paused,
+			'pauseStart': Date.now(),
+			'showAdd' : !this.state.showAdd,
+		})
 	},
 	random: function() {
 		this.setState({'chroma':[Math.floor(Math.random()*255),Math.floor(Math.random()*255),Math.floor(Math.random()*255)]})
 	},
 	save: function() {
 		console.log('saved') // not completed
+	},
+	home: function() {
+		this.componentWillUnmount()
+		ReactDOM.render(<InitailPage/>,document.getElementById('root'))
 	},
 	componentDidMount: function() {
 		window.addEventListener('resize', this.handleResize) 
@@ -105,27 +124,44 @@ var ColorTimePage = React.createClass({
     window.removeEventListener('onClick', this.handleMouse);
   },
 	render: function() {
-			var h1c = '#ffffff'
-			if (lightEnuf(this.state.chroma)) 
-				h1c = '#2e2e2e'
+		var h1c = '#ffffff'
+		if (lightEnuf(this.state.chroma)) 
+			h1c = '#2e2e2e'
+
+		var smallTitle = <h1 id="color" style={{'color':h1c}}>{toRGB(this.state.chroma)}</h1>
+		
+		var header = <header>
+      <i className='fi-home' style={{'color':h1c}} onClick={this.home}></i>
+    </header>
 
 		if (this.props.page ==='time') {
-			return <div id="canvas" onClick={this.click} 
-				style={{'backgroundColor':toRGB(this.state.chroma)}}>
-				<h1 id="color" style={{'color':h1c}}>{toRGB(this.state.chroma)}</h1>
-			</div>;
+			return <div id="canvas" onClick={this.pause} 
+					style={{'backgroundColor':toRGB(this.state.chroma)}}>
+					{header}
+					<div>
+						<i className="fi-plus" style={{'color':h1c,'display': (this.state.showAdd ? 'block' : 'none')}}/>
+						{smallTitle}
+					</div>
+				</div>
 
 		} else if (this.props.page ==='random') {
-			return <div id="canvas" onClick={this.random} 
-				style={{'backgroundColor':toRGB(this.state.chroma)}}>
-				<h1 id="color" style={{'color':h1c}}>{toRGB(this.state.chroma)}</h1>
-			</div>;
+			return <div> {header}
+				<div id="canvas" onClick={this.random} 
+					style={{'backgroundColor':toRGB(this.state.chroma)}}>
+					<div>
+						<i className="fi-plus" style={{'color':h1c}}/>
+						{smallTitle}
+					</div>
+				</div>
+			</div>
 
 		} else if (this.props.page === 'select') {
-			return <div id="canvas" onClick={this.save} onMouseMove={this.handleMouse}
-				style={{'backgroundColor':toRGB(this.state.chroma)}}>
-				<h1 id="color" style={{'color':h1c}}>{toRGB(this.state.chroma)}</h1>
-			</div>;			
+			return <div> {header}
+				<div id="canvas" onClick={this.save} onMouseMove={this.handleMouse}
+					style={{'backgroundColor':toRGB(this.state.chroma)}}>
+					{smallTitle}
+				</div>;	
+			</div>		
 		}
 	}
 });

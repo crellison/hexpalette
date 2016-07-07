@@ -1,6 +1,18 @@
 body, h1 {
 	font-family: 'Helvetica Neue', Helvetica;
 	font-weight: lighter;
+	z-index: -1;
+}
+header {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 5;
+	height: 50px;
 }
 #canvas {
 	width: 100vw;
@@ -15,7 +27,14 @@ body, h1 {
 #color {
 	color: #fff;
 }
-
+#canvas > div {
+	display: flex;
+	align-items: center;
+}
+i.fi-plus {
+	padding-right: 10px;
+	font-size: 36px;
+}
 .initial {
     background: linear-gradient(92deg, #2e97d3, #9b56b7, #e87f04, #1dce6c);
     background-size: 800% 800%;
