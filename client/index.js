@@ -16,8 +16,8 @@ function smoothParse(hue,lit) {
 	var H = hue
 	var L = lit
 	var S = 1
-	// console.log('H: ',H)
-	// console.log('L: ',L)
+	console.log('H: ',H)
+	console.log('L: ',L)
 	var R, G, B, v2
 
 	if (L < .5) v2 = L*(1+S)
@@ -68,16 +68,16 @@ var InitialPage = React.createClass({
 		this.setState({'page' : arg.target.text})
 	},
 	save: function(e) {
-		console.log('save called')
+		// console.log('save called')
 		var color = e.target.parentElement.lastChild.innerHTML || e.target.parentElement.lastChild.value
 		e.target.parentElement.lastChild.value = ''
-		console.log(color)
+		// console.log(color)
 		color = pareseColorString(color)
 		if (color) this.setState({'palette': this.state.palette.concat([color])}) // not completed
-		console.log(this.state.palette)
+		// console.log(this.state.palette)
 	},
 	render: function() {
-		console.log("currently on: ", this.state.page)
+		// console.log("currently on: ", this.state.page)
 		if (this.state.page === 'home')
 			return <div id="canvas" className="initial">
 				<a className="secondary button index" onClick={this.color}>time</a>
@@ -131,6 +131,7 @@ var ColorPage = React.createClass({
 		})
 	},
 	random: function() {
+		this.setState({'showAdd':true})
 		this.setState({'chroma':[Math.floor(Math.random()*255),Math.floor(Math.random()*255),Math.floor(Math.random()*255)]})
 	},
 	home: function() {
@@ -142,7 +143,7 @@ var ColorPage = React.createClass({
 		// add event listeners
 		window.addEventListener('resize', this.handleResize) 
 		if (this.props.page === 'time') {
-			console.log('triggering color change')
+			// console.log('triggering color change')
 			this.setState({'interval' : setInterval(this.click,10)})
 		}
 	},
@@ -192,12 +193,14 @@ var ColorPage = React.createClass({
 			</div>		
 
 		} else if (this.props.page === 'palette') {
-			console.log(this.props.palette) // NEED TO FINISH AND ADD COOKIES
+			// console.log(this.props.palette) // NEED TO FINISH AND ADD COOKIES
 			return <div id='palette' style={{'backgroundColor': '#e2e2e2'}}> 
 				{header}
+				<div id="swatch-container">
 				{this.props.palette.map(function(e,i) {
 					return <div key={e+i} id="swatch" style={{'backgroundColor':e}} onClick={this.grabColor}/>
 				},this)}
+				</div>
 				<div id="add-color">
 					<i className="fi-plus" onClick={this.props.saveColor}/>
 					<input placeholder="add a color"/>

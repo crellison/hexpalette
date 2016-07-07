@@ -43,15 +43,6 @@ header {
 	padding-right: 5px;
 	font-size: 24px;
 }
-@media (min-width: 640px) {
-	#title > i.fi-plus {
-		padding-right: 10px;
-		font-size: 36px;
-	}
-	#color {
-		margin-bottom: 10px;
-	}
-}
 
 /* PALETTE PAGE */
 #palette {
@@ -60,9 +51,15 @@ header {
 	position: fixed;
 	top: 0;
 	left: 0;
+  padding: 50px 10px 0 20px;
+  overflow-y: scroll;
+}
+#swatch-container {
 	display: flex;
   flex-wrap: wrap;
-  padding: 50px 10px 0 20px;
+  align-content: flex-start;
+  overflow-y: scroll;
+  padding-bottom: 100px;
 }
 #swatch {
 	width: 50px;
@@ -72,8 +69,7 @@ header {
 #current-color, #add-color {
 	position: fixed;
   padding: 5px;
-	background-color: transparent;
-
+	background-color: rgba(226,226,226,.9);
 }
 #add-color {
   right: 20px;
@@ -145,4 +141,18 @@ header {
 .button.secondary.index:focus, .button.secondary.index:hover {
 	background-color: #fff;
 	color: #2e2e2e;
+}
+
+/* MEDIA QUERIES */
+@media (min-width: 640px) {
+	#title > i.fi-plus {
+		padding-right: 10px;
+		font-size: 36px;
+	}
+	#color {
+		margin-bottom: 10px;
+	}
+	#add-color {
+		bottom: 40px;
+	}
 }
