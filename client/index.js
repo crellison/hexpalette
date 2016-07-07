@@ -48,21 +48,30 @@ function lightEnuf(array) {
 }
 
 // INITIAL PAGE
-var InitailPage = React.createClass({
+var InitialPage = React.createClass({
+	getInitialState: function() {
+		return {
+			'page': 'home'
+		}
+	},
 	color: function(arg) {
-		ReactDOM.render(<ColorTimePage page={arg.target.text}/>,document.getElementById('root'))
+		this.setState({'page' : arg.target.text})
 	},
 	render: function() {
-		return <div id="canvas" className="initial">
-			<a className="secondary button index" onClick={this.color}>time</a>
-			<a className="secondary button index" onClick={this.color}>select</a>
-			<a className="secondary button index" onClick={this.color}>random</a>
-			<a className="secondary button index">palette</a>
-		</div>
+		if (this.state.page === 'home')
+			return <div id="canvas" className="initial">
+				<a className="secondary button index" onClick={this.color}>time</a>
+				<a className="secondary button index" onClick={this.color}>select</a>
+				<a className="secondary button index" onClick={this.color}>random</a>
+				<a className="secondary button index">palette</a>
+			</div>
+		else
+			return <ColorPage page={this.state.page}/>
 	}
 })
+
 // COLOR PAGES
-var ColorTimePage = React.createClass({
+var ColorPage = React.createClass({
 	getInitialState: function() {
     return {
     	'chroma': [0,0,0],
@@ -72,7 +81,8 @@ var ColorTimePage = React.createClass({
     	'paused': false,
     	'pauseStart': 0,
     	'pauseTime': 0,
-    	'showAdd': false
+    	'showAdd': false,
+    	'home': false,
     };
   },
   handleResize: function(e) {
@@ -88,7 +98,7 @@ var ColorTimePage = React.createClass({
 	click: function() {
 		if (this.state.paused) {
 			this.setState({'pauseTime' : Date.now()-this.state.pauseStart})
-		} else {
+		} else if (this.props.page ==='time'){
 			var HL = getHL(Date.now()-this.state.pauseTime)
 			this.setState({'chroma':smoothParse(HL[0],HL[1])})
 		}
@@ -108,7 +118,7 @@ var ColorTimePage = React.createClass({
 	},
 	home: function() {
 		this.componentWillUnmount()
-		ReactDOM.render(<InitailPage/>,document.getElementById('root'))
+		this.setState({'home' : true})
 	},
 	componentDidMount: function() {
 		window.addEventListener('resize', this.handleResize) 
@@ -121,14 +131,19 @@ var ColorTimePage = React.createClass({
 	},
 	componentWillUnmount: function() {
     window.removeEventListener('resize', this.handleResize);
-    window.removeEventListener('onClick', this.handleMouse);
+    window.removeEventListener('click', this.handleMouse);
   },
 	render: function() {
+		if (this.state.home === true) return <InitialPage/>
+
 		var h1c = '#ffffff'
 		if (lightEnuf(this.state.chroma)) 
 			h1c = '#2e2e2e'
 
-		var smallTitle = <h1 id="color" style={{'color':h1c}}>{toRGB(this.state.chroma)}</h1>
+		var title = <div>
+			<i className="fi-plus" style={{'color':h1c,'display': (this.state.showAdd ? 'block' : 'none')}}/>
+			<h1 id="color" style={{'color':h1c}}>{toRGB(this.state.chroma)}</h1>
+		</div>
 		
 		var header = <header>
       <i className='fi-home' style={{'color':h1c}} onClick={this.home}></i>
@@ -138,20 +153,14 @@ var ColorTimePage = React.createClass({
 			return <div id="canvas" onClick={this.pause} 
 					style={{'backgroundColor':toRGB(this.state.chroma)}}>
 					{header}
-					<div>
-						<i className="fi-plus" style={{'color':h1c,'display': (this.state.showAdd ? 'block' : 'none')}}/>
-						{smallTitle}
-					</div>
+					{title}
 				</div>
 
 		} else if (this.props.page ==='random') {
 			return <div> {header}
 				<div id="canvas" onClick={this.random} 
 					style={{'backgroundColor':toRGB(this.state.chroma)}}>
-					<div>
-						<i className="fi-plus" style={{'color':h1c}}/>
-						{smallTitle}
-					</div>
+					{title}
 				</div>
 			</div>
 
@@ -159,11 +168,11 @@ var ColorTimePage = React.createClass({
 			return <div> {header}
 				<div id="canvas" onClick={this.save} onMouseMove={this.handleMouse}
 					style={{'backgroundColor':toRGB(this.state.chroma)}}>
-					{smallTitle}
+					{title}
 				</div>;	
 			</div>		
 		}
 	}
 });
 
-ReactDOM.render(<InitailPage/>,document.getElementById('root'));
+ReactDOM.render(<InitialPage/>,document.getElementById('root'));

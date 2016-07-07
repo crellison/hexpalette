@@ -14,7 +14,7 @@ app.use(webpackMiddleware(compiler, {
   hot: true,
   historyApiFallback: true
 }));
-app.use(require('webpack-hot-middleware')(compiler));
+// app.use(require('webpack-hot-middleware')(compiler));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -26,15 +26,3 @@ var port = process.env.PORT || 3000;
 server.listen(port, function() {
   console.log('Started, listening on port ', port);
 });
-
-// new WebpackDevServer(webpack(config), {
-//   publicPath: config.output.publicPath,
-//   hot: true,
-//   historyApiFallback: true
-// }).listen(port, 'localhost', function (err, result) {
-//   if (err) {
-//     return console.log(err);
-//   } else {
-//     console.log('Listening at http://localhost:' + port + '/');
-//   }
-// });
