@@ -51,22 +51,30 @@ function lightEnuf(array) {
 var InitialPage = React.createClass({
 	getInitialState: function() {
 		return {
-			'page': 'home'
+			'page': 'home',
+			'palette': [],
 		}
 	},
 	color: function(arg) {
 		this.setState({'page' : arg.target.text})
 	},
+	save: function(e) {
+		console.log('save called')
+		console.log(e.target.parentElement.lastChild.innerHTML)
+		this.setState({'palette': this.state.palette.concat([e.target.parentElement.lastChild.innerHTML])}) // not completed
+		console.log(this.state.palette)
+	},
 	render: function() {
+		console.log(this.state.palette)
 		if (this.state.page === 'home')
 			return <div id="canvas" className="initial">
 				<a className="secondary button index" onClick={this.color}>time</a>
 				<a className="secondary button index" onClick={this.color}>select</a>
 				<a className="secondary button index" onClick={this.color}>random</a>
-				<a className="secondary button index">palette</a>
+				<a className="secondary button index" onClick={this.color}>palette</a>
 			</div>
 		else
-			return <ColorPage page={this.state.page}/>
+			return <ColorPage page={this.state.page} saveColor={this.save} palette={this.state.palette}/>
 	}
 })
 
@@ -75,7 +83,6 @@ var ColorPage = React.createClass({
 	getInitialState: function() {
     return {
     	'chroma': [0,0,0],
-    	'palette': [],
     	'windowX': window.innerWidth,
     	'windowY': window.innerHeight,
     	'paused': false,
@@ -113,9 +120,6 @@ var ColorPage = React.createClass({
 	random: function() {
 		this.setState({'chroma':[Math.floor(Math.random()*255),Math.floor(Math.random()*255),Math.floor(Math.random()*255)]})
 	},
-	save: function() {
-		console.log('saved') // not completed
-	},
 	home: function() {
 		this.componentWillUnmount()
 		this.setState({'home' : true})
@@ -134,6 +138,8 @@ var ColorPage = React.createClass({
     window.removeEventListener('click', this.handleMouse);
   },
 	render: function() {
+		console.log(this.props.saveColor)
+
 		if (this.state.home === true) return <InitialPage/>
 
 		var h1c = '#ffffff'
@@ -141,7 +147,7 @@ var ColorPage = React.createClass({
 			h1c = '#2e2e2e'
 
 		var title = <div>
-			<i className="fi-plus" style={{'color':h1c,'display': (this.state.showAdd ? 'block' : 'none')}}/>
+			<i className="fi-plus" onClick={this.props.saveColor} style={{'color':h1c,'display': (this.state.showAdd ? 'block' : 'none')}}/>
 			<h1 id="color" style={{'color':h1c}}>{toRGB(this.state.chroma)}</h1>
 		</div>
 		
@@ -166,11 +172,21 @@ var ColorPage = React.createClass({
 
 		} else if (this.props.page === 'select') {
 			return <div> {header}
-				<div id="canvas" onClick={this.save} onMouseMove={this.handleMouse}
+				<div id="canvas" onClick={this.pause} onMouseMove={this.handleMouse}
 					style={{'backgroundColor':toRGB(this.state.chroma)}}>
 					{title}
 				</div>;	
 			</div>		
+
+		} else if (this.props.page === 'palette') {
+			console.log(this.props.palette) // NEED TO FINISH AND ADD COOKIES
+			return <div> {header}
+				<div id="palette">
+				{this.props.palette.map(function(e) {
+					return<div id="swatch" style={{'color':e}}/>
+				})}
+				</div>
+			</div>
 		}
 	}
 });
