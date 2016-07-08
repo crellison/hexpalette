@@ -4,8 +4,8 @@ var _ = require('underscore');
 var fileSaver = require('file-saver')
 
 // REGEX EXPRESSIONS
-var HEX = /^#([0-9a-f]{3}){1,2}$/i
-var RGB = /^rgb\((\d{1,3}),(\s)?(\d{1,3}),(\s)?(\d{1,3})\)$/i
+var HEX = /^(?:#)?([0-9a-f]{3})([0-9a-f]{3})?/i
+var RGB = /^(?:rgb(?:(\(|\s)))?(\d+)[^\d]{1,2}(\d+)[^\d]{1,2}(\d+)/i
 
 // INITIAL PAGE
 var InitialPage = React.createClass({
@@ -23,12 +23,7 @@ var InitialPage = React.createClass({
 	color: function(arg) {
 		this.setState({'page' : arg.target.text})
 	},
-	save: function(e) {
-		e.preventDefault()
-		var color = e.target.parentElement.lastChild.innerHTML // center div
-						 || e.target.parentElement.parentElement.lastChild.value // input field
-		e.target.parentElement.parentElement.lastChild.value = ''
-		color = parseColorString(color)
+	save: function(color) {
 		if (color) this.setState({'palette': this.state.palette.concat([color])})
 	},
 	remove: function(e) {
@@ -71,6 +66,7 @@ var ColorPage = React.createClass({
     	'interval': false,
     	'current': 'rbg(226, 226, 226)',
     	'selected': selected,
+    	'input': [0,0,0]
     };
   },
   handleResize: function(e) { // resizes color window on select page
@@ -137,7 +133,7 @@ var ColorPage = React.createClass({
 			return '$color'+i+': '+toHEX(elt.slice(4,-1).split(','))+'; /* '+elt+' */\n'
 		}))
   	for (var i = 0; i < expArr.length; i++) {
-  		console.log(expArr[i])
+  		// console.log(expArr[i])
   	}
   	var blob = new Blob(expArr,{'type': 'text/css;charset=utf-8'})
   	fileSaver.saveAs(blob, 'hexpalette.scss')
@@ -148,13 +144,27 @@ var ColorPage = React.createClass({
 		var i = this.state.selected.indexOf(color)
 		this.setState({'selected':this.state.selected.slice(0,i).concat(this.state.selected.slice(i+1))})
   },
+  enter: function(e) {
+  	// console.log('current value', e.target.value)
+  	// console.log('setting input to: ',parseColorString(e.target.value))
+    this.setState({'input': parseColorString(e.target.value) || [0,0,0]})
+  	if(e.which === 13) {
+  		e.target.value = ''
+  		// console.log('current input: ',this.state.input)
+  		this.props.saveColor(this.state.input)
+    }
+  },
+  saveColor: function() {
+  	// console.log(toHEX(this.state.chroma))
+  	this.props.saveColor(toHEX(this.state.chroma))
+  },
 	render: function() {
 		var h1c = '#ffffff'
 		if (lightEnuf(this.state.chroma)) 
 			h1c = '#2e2e2e'
 
 		var title = <div id="title">
-			<i className="fi-plus" onClick={this.props.saveColor} 
+			<i className="fi-plus" onClick={this.saveColor} 
 				style={{'color':h1c,'display': (this.state.showAdd ? 'block' : 'none')}}/>
 			<h1 id="color" style={{'color':h1c}}>{toRGB(this.state.chroma)}</h1>
 		</div>
@@ -208,10 +218,10 @@ var ColorPage = React.createClass({
 				},this)}
 				</div>
 				<div id="add-color">
-					<div id="add" onClick={this.props.saveColor}>
+					<div id="add" onClick={function() {this.props.saveColor(this.state.input)}.bind(this)}>
 						<span className="fi-plus"/>
 					</div>
-					<input placeholder="add RGB or HEX"/>
+					<input placeholder="add RGB or HEX" onKeyUp={this.enter}/>
 				</div>
 				<h4 id="current-color">{this.state.current}</h4>
 			</div>
@@ -259,8 +269,9 @@ function toRGB(array) {
 	return 'rgb('+array[0]+','+array[1]+','+array[2]+')'
 }
 function toHEX(array) {
+	// console.log('array: ', array)
 	return '#' + array.map(function(e) {
-		return e>255 ? 'ff' : ('0'+parseInt(e).toString(16)).slice(-2)
+		return parseInt(e)>255 ? 'ff' : ('0'+parseInt(e).toString(16)).slice(-2)
 	}).join('')
 }
 function lightEnuf(array) {
@@ -268,11 +279,13 @@ function lightEnuf(array) {
 }
 function parseColorString(color) {
 	if (!color) return false
-	color = color.replace(/ /g,'')
 	if (RGB.test(color)) {
-		return toHEX(color.slice(4,-1).split(','))}
-	if (HEX.test(color)) return color.length===4 ? 
-		color.slice(0,2)+color.slice(1,3)+color.slice(2)+color.slice(3) : color
+		color = RGB.exec(color).slice(-3)
+		return toHEX(color)}
+	if (HEX.test(color)) {
+		color = HEX.exec(color).slice(1,3)
+		return '#'.concat(_.isUndefined(color[1]) ? color[0].split('').map(function(e) {return e+e}).join('') : color[0]+color[1])
+	}
 }
 
 ReactDOM.render(<InitialPage/>,document.getElementById('root'));
