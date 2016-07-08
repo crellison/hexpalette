@@ -171,7 +171,7 @@ var ColorPage = React.createClass({
 			<h1 id="color" style={{'color':h1c}}>{toRGB(this.state.chroma)}</h1>
 		</div>
 		
-		var header = <header>
+		var header = <header style={{'backgroundColor': this.props.page==='palette' ? 'rgba(226,226,226,.9)' : 'transparent'}}>
       <i className='fi-home' style={{'color':h1c}} onClick={this.home}></i>
     </header>
 
@@ -232,10 +232,6 @@ var ColorPage = React.createClass({
 });
 
 // HELPER FUNCTIONS
-function parseTime() {
-	// too simple, renders choppy
-	return '#'+(Date.now().toString(16).toUpperCase().slice(-7,-1))
-}
 function getHL(now) {
 	var H = Math.floor((now/10)%1000)/1000
 	var L = Math.floor((now/1000)%100)/100
@@ -258,7 +254,6 @@ function smoothParse(hue,lit) {
 
 	return [R,G,B]
 }
-
 function H2R(v1, v2, vH) {
 	if (vH<0) vH+=1
 	if (vH>1) vH-=1

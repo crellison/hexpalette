@@ -15,6 +15,7 @@ header {
 	align-items: center;
 	z-index: 1;
 	height: 50px;
+	
 }
 /* placeholder color */
 ::-webkit-input-placeholder {
@@ -139,7 +140,6 @@ header {
 	right: 15px;
 	color: #fff;
 	text-align: right;
-	background-color: rgba(226,226,226,.9);
 	padding: 5px 10px;
 }
 
@@ -209,5 +209,32 @@ header {
 	}
 	#saved > div {
 		height: 60px;
+	}
+}
+@media only screen and (min-width: 1024px) {
+	header {
+		height: 80px;
+	}
+	body, h1, h4, input, a, span, i {
+		font-size: 1.5em !important;
+	}
+	#palette {
+		padding-top: 80px;
+	}
+	#swatch-container {
+		padding-bottom: 150px;
+	}
+	#swatch {
+		width: 120px;
+		height: 120px;
+	}
+	#add-color {
+		bottom: 60px;
+	}
+	#saved {
+		width: 450px;
+	}
+	#saved > div {
+		height: 80px;
 	}
 }
