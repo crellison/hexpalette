@@ -62,6 +62,7 @@ var ColorPage = React.createClass({
     	'paused': false,
     	'pauseStart': 0,
     	'pauseTime': 0,
+    	'cumulativePause': 0,
     	'showAdd': false,
     	'interval': false,
     	'current': 'rbg(226, 226, 226)',
@@ -81,9 +82,10 @@ var ColorPage = React.createClass({
   },
 	click: function() { // handles click events to pause color change on time page
 		if (this.state.paused) {
-			this.setState({'pauseTime' : Date.now()-this.state.pauseStart})
+			this.setState({'pauseTime' : Date.now()-this.state.pauseStart+this.state.cumulativePause})
 		} else {
-			var HL = getHL(Date.now()-this.state.pauseTime)
+			this.setState({'cumulativePause': this.state.pauseTime})
+			var HL = getHL(Date.now()-this.state.cumulativePause)
 			this.setState({'chroma':smoothParse(HL[0],HL[1])})
 		}
 	},
