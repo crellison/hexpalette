@@ -1,6 +1,8 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
-var _=require('underscore');
+var _ = require('underscore');
+var fileSaver = require('file-saver')
+
 // REGEX EXPRESSIONS
 var HEX = /^#([0-9a-f]{3}){1,2}$/i
 var RGB = /^rgb\((\d{1,3}),(\s)?(\d{1,3}),(\s)?(\d{1,3})\)$/i
@@ -22,36 +24,42 @@ var InitialPage = React.createClass({
 		this.setState({'page' : arg.target.text})
 	},
 	save: function(e) {
+		e.preventDefault()
 		var color = e.target.parentElement.lastChild.innerHTML // center div
 						 || e.target.parentElement.parentElement.lastChild.value // input field
-
 		e.target.parentElement.parentElement.lastChild.value = ''
 		color = parseColorString(color)
 		if (color) this.setState({'palette': this.state.palette.concat([color])})
 	},
 	remove: function(e) {
+		e.preventDefault()
 		var color = parseColorString(e.target.parentElement.style.backgroundColor)
 		var i = this.state.palette.indexOf(color)
 		this.setState({'palette':this.state.palette.slice(0,i).concat(this.state.palette.slice(i+1))})
 	},
 	render: function() {
 		localStorage.setItem('palette', this.state.palette.join(' '))
-		// console.log("currently on: ", this.state.page)
 		if (this.state.page === 'home')
 			return <div id="canvas" className="initial">
 				<a className="secondary button index" onClick={this.color}>time</a>
 				<a className="secondary button index" onClick={this.color}>select</a>
 				<a className="secondary button index" onClick={this.color}>random</a>
 				<a className="secondary button index" onClick={this.color}>palette</a>
+				<div id="foot">
+					<a className="fi-social-github" id="github" href="https://github.com/crellison/colorPage"/>
+				</div>
 			</div>
 		else
-			return <ColorPage page={this.state.page} saveColor={this.save} palette={this.state.palette} home={this.home} remove={this.remove}/>
+			return <ColorPage page={this.state.page} saveColor={this.save} 
+				palette={this.state.palette} home={this.home} remove={this.remove}/>
 	}
 })
 
 // COLOR PAGES
 var ColorPage = React.createClass({
 	getInitialState: function() {
+		var selected = localStorage.getItem('selected')
+		selected ? selected=selected.split(' ') : selected=[]
     return {
     	'chroma': [0,0,0],
     	'windowX': window.innerWidth,
@@ -62,7 +70,7 @@ var ColorPage = React.createClass({
     	'showAdd': false,
     	'interval': false,
     	'current': 'rbg(226, 226, 226)',
-    	'selected': [],
+    	'selected': selected,
     };
   },
   handleResize: function(e) { // resizes color window on select page
@@ -92,7 +100,9 @@ var ColorPage = React.createClass({
 	},
 	random: function() { // renders random color on random page
 		this.setState({'showAdd':true})
-		this.setState({'chroma':[Math.floor(Math.random()*255),Math.floor(Math.random()*255),Math.floor(Math.random()*255)]})
+		this.setState({
+			'chroma':[Math.floor(Math.random()*255),Math.floor(Math.random()*255),Math.floor(Math.random()*255)]
+		})
 	},
 	home: function() { // unmounts handlers and clears interval before returning to home screen
 		this.componentWillUnmount()
@@ -103,7 +113,6 @@ var ColorPage = React.createClass({
 		// add event listeners
 		window.addEventListener('resize', this.handleResize) 
 		if (this.props.page === 'time') {
-			// console.log('triggering color change')
 			this.setState({'interval' : setInterval(this.click,10)})
 		}
 	},
@@ -113,14 +122,31 @@ var ColorPage = React.createClass({
     window.removeEventListener('onClick', this.grabColor);
   },
   grabColor: function(e) { // snags color of swatch and displays it on palette page
+  	e.preventDefault()
   	this.setState({'current' : e.target.style.backgroundColor})
   	return e.target.style.backgroundColor
   },
   add: function(e) { // adds color to export scheme
-  	console.log(this.grabColor(e))
+  	e.preventDefault()
+  	if (this.state.selected.length<7)
+			this.setState({'selected': this.state.selected.concat([this.grabColor(e).replace(/ /g,'')])})
   },
   export: function() { // exports .scss doc with color names
-  	console.log(this.state.selected)
+		var expArr = ['/* Hex Palette export '+Date()+' */\n\n']
+		expArr = expArr.concat(this.state.selected.map(function(elt,i) {
+			return '$color'+i+': '+toHEX(elt.slice(4,-1).split(','))+'; /* '+elt+' */\n'
+		}))
+  	for (var i = 0; i < expArr.length; i++) {
+  		console.log(expArr[i])
+  	}
+  	var blob = new Blob(expArr,{'type': 'text/css;charset=utf-8'})
+  	fileSaver.saveAs(blob, 'hexpalette.scss')
+  },
+  remove: function(e) {
+  	e.preventDefault()
+		var color = e.target.style.backgroundColor.replace(/ /g,'')
+		var i = this.state.selected.indexOf(color)
+		this.setState({'selected':this.state.selected.slice(0,i).concat(this.state.selected.slice(i+1))})
   },
 	render: function() {
 		var h1c = '#ffffff'
@@ -128,7 +154,8 @@ var ColorPage = React.createClass({
 			h1c = '#2e2e2e'
 
 		var title = <div id="title">
-			<i className="fi-plus" onClick={this.props.saveColor} style={{'color':h1c,'display': (this.state.showAdd ? 'block' : 'none')}}/>
+			<i className="fi-plus" onClick={this.props.saveColor} 
+				style={{'color':h1c,'display': (this.state.showAdd ? 'block' : 'none')}}/>
 			<h1 id="color" style={{'color':h1c}}>{toRGB(this.state.chroma)}</h1>
 		</div>
 		
@@ -160,13 +187,24 @@ var ColorPage = React.createClass({
 			</div>		
 
 		} else if (this.props.page === 'palette') {
+			localStorage.setItem('selected', this.state.selected.join(' '))
 			return <div id='palette' style={{'backgroundColor': '#e2e2e2'}}> 
 				{header}
+
+				{this.state.selected ? 
+					<a id="export" href="#" onClick={this.export}>export scss</a>	: null
+				}
+				
 				<div id="swatch-container">
+				<div id="saved">
+					{this.state.selected.map(function(elt, i) {
+						return <div key={i+elt} style={{'backgroundColor':elt}} onClick={this.remove}>
+						</div>
+					},this)}
+				</div>
 				{this.props.palette.map(function(e,i) {
 					return <div key={e+i} id="swatch" style={{'backgroundColor':e}} onClick={this.grabColor}>
 							<span className="fi-trash inside-swatch" onClick={this.props.remove} style={{'backgroundColor':e}}/>
-							<span className="fi-x inside-swatch" onClick={null} style={{'backgroundColor':e}}/>
 							<span className="fi-plus inside-swatch" onClick={this.add} style={{'backgroundColor':e}}/>
 					</div>
 				},this)}
@@ -197,8 +235,6 @@ function smoothParse(hue,lit) {
 	var H = hue
 	var L = lit
 	var S = 1
-	// console.log('H: ',H)
-	// console.log('L: ',L)
 	var R, G, B, v2
 
 	if (L < .5) v2 = L*(1+S)
@@ -236,9 +272,9 @@ function parseColorString(color) {
 	if (!color) return false
 	color = color.replace(/ /g,'')
 	if (RGB.test(color)) {
-		// console.log(toHEX(color.slice(4,-1).split(',')))
 		return toHEX(color.slice(4,-1).split(','))}
-	if (HEX.test(color)) return color
+	if (HEX.test(color)) return color.length===4 ? 
+		color.slice(0,2)+color.slice(1,3)+color.slice(2)+color.slice(3) : color
 }
 
 ReactDOM.render(<InitialPage/>,document.getElementById('root'));
