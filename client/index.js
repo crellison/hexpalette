@@ -191,9 +191,7 @@ var ColorPage = React.createClass({
 			return <div id='palette' style={{'backgroundColor': '#e2e2e2'}}> 
 				{header}
 
-				{this.state.selected ? 
-					<a id="export" href="#" onClick={this.export}>export scss</a>	: null
-				}
+				{this.state.selected.length>0 ? <a id="export" href="#" onClick={this.export}>export scss</a>	: null}
 				
 				<div id="swatch-container">
 				<div id="saved">
