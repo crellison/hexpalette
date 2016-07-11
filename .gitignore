@@ -1,5 +1,4 @@
 node_modules
-dist
 client
 server.js
 webpack.config.js
