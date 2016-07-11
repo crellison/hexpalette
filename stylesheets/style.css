@@ -14,8 +14,13 @@ header {
 	justify-content: center;
 	align-items: center;
 	z-index: 1;
-	height: 50px;
-	
+	background-color: rgba(226,226,226,.9);
+}
+#home {
+	position: fixed;
+	left: 50%;
+	top: 10px;
+	margin-left: -.2em;
 }
 /* placeholder color */
 ::-webkit-input-placeholder {
