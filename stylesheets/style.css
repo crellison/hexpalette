@@ -1,0 +1,240 @@
+@import url('https://fonts.googleapis.com/css?family=Inconsolata');
+
+body, h1, h4, input {
+	font-family: 'Inconsolata', Courier;
+	font-weight: normal;
+	color: #2e2e2e;
+}
+header {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 1;
+	height: 50px;
+	
+}
+/* placeholder color */
+::-webkit-input-placeholder {
+	color: #7d7d7d !important;
+}
+#foot {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	height: 50px;
+	width: 100vw;
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+}
+#github {
+	color: #fff;
+	font-size: 25px;
+}
+
+/* STANDARD CANVAS BACKGROUND */
+#canvas {
+	width: 100vw;
+	height: 100vh;
+	position: fixed;
+	top: 0;
+	left: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+#color {
+	color: #fff;
+	margin-bottom: 3px;
+	font-weight: lighter;
+}
+#canvas > div {
+	display: flex;
+	align-items: center;
+}
+#title > i.fi-plus {
+	padding-right: 5px;
+	font-size: 24px;
+}
+
+/* PALETTE PAGE */
+#palette {
+	width: 100vw;
+	height: 100vh;
+	position: fixed;
+	top: 0;
+	left: 0;
+  padding: 50px 10px 0 10px;
+  overflow-y: scroll;
+}
+#swatch-container {
+	display: flex;
+  flex-wrap: wrap;
+  overflow-y: scroll;
+  padding-bottom: 100px;
+}
+#swatch {
+	width: 80px;
+  height: 80px;
+  margin: 0 5px 10px 5px;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.inside-swatch {
+	color: #fff;
+	margin-bottom: -6px;
+}
+#current-color, #add-color {
+	position: fixed;
+  padding: 5px;
+	background-color: rgba(226,226,226,.9);
+}
+#add-color {
+  right: 20px;
+  margin-bottom: 20px;
+  bottom: 30px;
+  padding-left: 10px;
+}
+#add-color > input {
+	font-size: 14px;
+  border-width: 0 0 1px 0;
+  border-color: #2e2e2e;
+  text-align: right;
+  outline: none;
+	background-color: transparent;	
+	margin-left: 10px;
+}
+#add {
+	display: inline-block;
+	padding-top: 3px;
+	transform: scale(1) rotate(0deg);
+	transition: all .7s ease;
+}
+#add:hover {
+	transform: scale(1.5) rotate(180deg);
+}
+#current-color {
+  right: 20px;
+  bottom: 0px;
+}
+#saved {
+	margin: 0 5px 10px 5px;
+	display: flex;
+	width: 100%; 
+}
+#saved > div {
+	width: 100%;
+	height: 40px;
+	display: inline-block;
+}
+#export {
+	z-index: 2;
+	position: fixed;
+	top: 15px;
+	right: 15px;
+	color: #fff;
+	text-align: right;
+	padding: 5px 10px;
+}
+
+/* INDEX PAGE GRADIENT ANIMATION */
+.initial {
+    background: linear-gradient(92deg, #2e97d3, #9b56b7, #e87f04, #1dce6c);
+    background-size: 800% 800%;
+
+    -webkit-animation: AnimationName 30s ease infinite;
+    -moz-animation: AnimationName 30s ease infinite;
+    -o-animation: AnimationName 30s ease infinite;
+    animation: AnimationName 30s ease infinite;
+}
+
+@-webkit-keyframes AnimationName {
+    0%{background-position:19% 0%}
+    50%{background-position:82% 100%}
+    100%{background-position:19% 0%}
+}
+@-moz-keyframes AnimationName {
+    0%{background-position:19% 0%}
+    50%{background-position:82% 100%}
+    100%{background-position:19% 0%}
+}
+@-o-keyframes AnimationName {
+    0%{background-position:19% 0%}
+    50%{background-position:82% 100%}
+    100%{background-position:19% 0%}
+}
+@keyframes AnimationName { 
+    0%{background-position:19% 0%}
+    50%{background-position:82% 100%}
+    100%{background-position:19% 0%}
+}
+.button.secondary.index {
+	background: transparent;
+	border-width: 1px;
+	border-color: #fff;
+	margin: 5px;
+	font-weight: normal;
+}
+.button.secondary.index:focus, .button.secondary.index:hover {
+	background-color: #fff;
+	color: #2e2e2e;
+}
+
+/* MEDIA QUERIES */
+@media (min-width: 640px) {
+	#title > i.fi-plus {
+		padding-right: 10px;
+		font-size: 36px;
+	}
+	#color {
+		margin-bottom: 10px;
+	}
+	#add-color {
+		bottom: 40px;
+	}
+	#saved {
+		width: 300px;
+    position: fixed;
+    left: 5px;
+    bottom: 0px;
+    background-color: rgba(226,226,226,.9);
+    margin: 0;
+    padding: 10px;
+	}
+	#saved > div {
+		height: 60px;
+	}
+}
+@media only screen and (min-width: 1024px) {
+	header {
+		height: 80px;
+	}
+	body, h1, h4, input, a, span, i {
+		font-size: 1.5em !important;
+	}
+	#palette {
+		padding-top: 80px;
+	}
+	#swatch-container {
+		padding-bottom: 150px;
+	}
+	#swatch {
+		width: 120px;
+		height: 120px;
+	}
+	#add-color {
+		bottom: 60px;
+	}
+	#saved {
+		width: 450px;
+	}
+	#saved > div {
+		height: 80px;
+	}
+}
