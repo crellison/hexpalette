@@ -256,11 +256,7 @@ header {
 	#swatch-container {
 		padding-bottom: 150px;
 	}
-<<<<<<< HEAD:stylesheets/style.css
-	#swatch {
-=======
 	.swatch {
->>>>>>> master:stylesheets/style.css
 		width: 120px;
 		height: 120px;
 	}
