@@ -155,7 +155,7 @@ header {
   margin: 0;
 }
 .banner {
-  display: flex;
+  display: none;
   justify-content: center;
   align-items: center;
   text-align: center;
@@ -172,6 +172,7 @@ header {
   transition: all .25s ease;
 }
 .bannerSwung {
+	display: flex;
   opacity: 1;
 }
 
