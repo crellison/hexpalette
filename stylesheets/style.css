@@ -155,7 +155,7 @@ header {
   margin: 0;
 }
 .banner {
-  display: none;
+  display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
@@ -165,6 +165,7 @@ header {
   top: 30vh;
   left: 0;
   opacity: 0;
+  z-index: -1;
   background-color: #2e2e2e;
   -webkit-transition: all .25s ease;
   -moz-transition: all .25s ease;
@@ -172,7 +173,7 @@ header {
   transition: all .25s ease;
 }
 .bannerSwung {
-	display: flex;
+	z-index: 0;
   opacity: 1;
 }
 
