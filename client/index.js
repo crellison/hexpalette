@@ -34,7 +34,7 @@ var _ = require('underscore');
 var fileSaver = require('file-saver')
 
 // REGEX EXPRESSIONS
-var HEX = /^(?:#)?([0-9a-f]{3})([0-9a-f]{3})?/i
+var HEX = /^(?:#)?([0-9a-f]{3})([0-9a-f]{3})?$/i
 var RGB = /^(?:rgb(?:(\(|\s)))?(\d+)[^\d]{1,2}(\d+)[^\d]{1,2}(\d+)/i
 
 // INITIAL PAGE
@@ -42,6 +42,8 @@ var InitialPage = React.createClass({
 	getInitialState: function() {
 		var palette = localStorage.getItem('palette')
 		palette ? palette=palette.split(' ') : palette=[]
+		// clearn local storage if corrupt
+		_.each(palette, function(elt) {if (!HEX.test(elt)) palette=[]})
 		return {
 			'page': 'home',
 			'palette': palette,
